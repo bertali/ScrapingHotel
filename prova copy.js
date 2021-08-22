@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 
-
-
-(async () => {
     const browser = await puppeteer.launch({ headless: false});
     const page = await browser.newPage();
+    const bookData = {}
+
+    const data = async (url) => {
+
     await page.goto ("https://www.secure-hotel-booking.com/smart/Star-Champs-Elysees/2YXB/en/");
 
     await page.waitForSelector("input.check-in-datepicker");
@@ -29,15 +30,19 @@ const puppeteer = require('puppeteer');
 
     await page.click("a.this-button._skin-3._size-big._icon-right")
 
+    await infoHotel()
+
+    };
 
 
+    const infoHotel = async() => {
     await page.waitForSelector("input.check-out-datepicker")
     await page.waitForTimeout(2000)
         
         const [checkinDate] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[2]');
         const checkinDateProp = await checkinDate.getProperty('textContent');
         const checkinDateTxt = await checkinDateProp.jsonValue();
-        const checkIn = JSON.stringify(checkinDateTxt).replace(/\"/g, '');
+        dataBooking.checkIn = this.replaceDateFormat(checkinDateTxt);
 
         console.log({checkIn}); 
 
@@ -64,16 +69,6 @@ const puppeteer = require('puppeteer');
 
         console.log({numChildrenTxt});
 
-
-        /* await page.waitForSelector(document.querySelector() () => {
-            const guestsSum = numAdultsTxt + numChildrenTxt;
-            return guestsSum;
-        });
-        const totalGuests = await page.evaluate(() => {
-            return totalGuestsResult();
-        });
-
-        console.log(totalGuests); */
 
 
         const siteLanguage = await page.evaluate(()=>{
@@ -119,44 +114,6 @@ const puppeteer = require('puppeteer');
     console.log(lowestPrice);
 
 
-    const currencyCode = await page.evaluate(() =>{
+};
 
-        let currencySymbols = {
-        '€':'EUR',
-        '$':'USD', 
-        '£':'GBP', 
-        'CHF': 'Swiss franc',
-        '¥':'JPY',
-        'AUD': 'Australian dolar',
-        'CAD': 'Canadian Dolar'
-        };
-
-        const allPrices = document.querySelectorAll('.room-rates-item-price-moy')
-
-        let arrPrices = []
-        allPrices.forEach(item =>{
-          arrPrices.push(item.innerText)
-        })
-
-        let currencySymbol = arrPrices[0].replace(/[\d\., ]/g, '')
-
-        let symbols = Object.keys(currencySymbols)
-        
-        let symbol = symbols.filter(item =>{
-          return item == currencySymbol
-        })
-
-        return currencySymbols[symbol]
-    
-      });
-
-      console.log(currencyCode)
-
-
-    /* fs.writeFileSync(path.join(__dirname, "data.json"), JSON.stringify(dataList), 'utf8', (err) => {
-        if (err) {  console.error(err);  return; };
-        console.log("File has been opened");
-    });  */
-
-})();
 
