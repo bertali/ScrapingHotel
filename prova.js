@@ -64,6 +64,33 @@ const puppeteer = require('puppeteer');
 
         console.log({numChildrenTxt});
 
+        let date = "Wed 5 Jan 2022"
+        function dateConverter(date){
+            let d = new Date(date)
+            let year = d.getFullYear()
+            let monthConverter = d.getMonth()
+            let month = monthConverter + 1
+            let day = d.getDate()
+            
+            let fullDate = [year, month, day]
+            
+            return fullDate.join('-')
+        }
+
+        console.log(dateConverter(date));
+
+
+        let adultos = "2"
+        let nens = "1"
+        function totalGuests (adultos, nens) {
+            return parseInt(adultos)
+        }
+
+        console.log(totalGuests(adultos));
+
+        
+       
+
 
         /* await page.waitForSelector(document.querySelector() () => {
             const guestsSum = numAdultsTxt + numChildrenTxt;
@@ -72,7 +99,6 @@ const puppeteer = require('puppeteer');
         const totalGuests = await page.evaluate(() => {
             return totalGuestsResult();
         });
-
         console.log(totalGuests); */
 
 
@@ -86,10 +112,8 @@ const puppeteer = require('puppeteer');
 
 
        /* const arrPrices = [];
-
        const prices = document.querySelectorAll('.room-rates-item-price-moy');
        prices.forEach(element = arrPrices.push(element.textContent));
-
        console.log(arrPrices); */
        
        
@@ -160,10 +184,8 @@ const puppeteer = require('puppeteer');
     const dataList = await page.evaluate(() => {
         return joinArrayResults();
     });
-
     fs.writeFileSync(
         path.join(__dirname, `${website.scriptName}.json`), JSON.stringify(dataList), 'utf8'
     ); */
 
 })();
-

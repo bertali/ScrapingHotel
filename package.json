@@ -2,7 +2,7 @@
   "name": "scrapinghotel",
   "version": "1.0.0",
   "description": "",
-  "main": "prova copy.js",
+  "main": "hotel.js",
   "scripts": {
     "test": "jest"
   },
