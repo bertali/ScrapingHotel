@@ -96,11 +96,11 @@ const puppeteer = require('puppeteer');
         await page.waitForSelector('.room-rates-item-price-moy');
         const rates = await page.evaluate(() => {
         const rates = document.querySelectorAll('.room-rates-item-price-moy');
-        let arrayRates = [];
+        let arrRates = [];
         rates.forEach(rate => {
-            arrayRates.push(rate.innerText.replace('€', ' EUR'));
+            arrRates.push(rate.innerText.replace('€', ' EUR'));
         });
-        return arrayRates;
+        return arrRates;
     });
 
     console.log(rates);
@@ -133,12 +133,12 @@ const puppeteer = require('puppeteer');
 
         const allPrices = document.querySelectorAll('.room-rates-item-price-moy')
 
-        let arrayPrices = []
+        let arrPrices = []
         allPrices.forEach(item =>{
-          arrayPrices.push(item.innerText)
+          arrPrices.push(item.innerText)
         })
 
-        let currencySymbol = arrayPrices[0].replace(/[\d\., ]/g, '')
+        let currencySymbol = arrPrices[0].replace(/[\d\., ]/g, '')
 
         let symbols = Object.keys(currencySymbols)
         
