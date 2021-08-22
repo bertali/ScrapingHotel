@@ -1,14 +1,14 @@
-const fs = require('fs');
-const path = require('path');
+module.exports = async (page, website) => {
+    await page.goto(website.url);
+};
+
 const puppeteer = require('puppeteer');
 
+
+
+(async () => {
     const browser = await puppeteer.launch({ headless: false});
     const page = await browser.newPage();
-    const bookData = {}
-    
-
-const data = async (url) => {
-    
     await page.goto ("https://www.secure-hotel-booking.com/smart/Star-Champs-Elysees/2YXB/en/");
 
     await page.waitForSelector("input.check-in-datepicker");
@@ -31,30 +31,23 @@ const data = async (url) => {
 
     await page.click("a.this-button._skin-3._size-big._icon-right")
 
-    await infoHotel()
-
-    };
 
 
-
-
-    const infoHotel = async() => {
     await page.waitForSelector("input.check-out-datepicker")
     await page.waitForTimeout(2000)
         
         const [checkinDate] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[2]');
         const checkinDateProp = await checkinDate.getProperty('textContent');
         const checkinDateTxt = await checkinDateProp.jsonValue();
-        dataBooking.checkIn = this.replaceDateFormat(checkinDateTxt);
-        
+        const checkIn = JSON.stringify(checkinDateTxt).replace(/\"/g, '');
 
-        console.log({checkinDateTxt}); 
+        console.log({checkIn}); 
 
 
         const [checkoutDate] = await page.$x('//*[@id="applicationHost"]/div/div[2]/div[1]/header/div[1]/p/span[3]');
         const checkoutDateProp = await checkoutDate.getProperty('textContent');
         const checkoutDateTxt = await checkoutDateProp.jsonValue();
-        const checkOut = JSON.stringify(checkoutDateTxt);
+        const checkOut = JSON.stringify(checkoutDateTxt).replace(/\"/g, '');
 
         console.log({checkOut});
 
@@ -62,16 +55,53 @@ const data = async (url) => {
         const [numAdults] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[4]/span[1]');
         const numAdultsProp = await numAdults.getProperty('textContent');
         const numAdultsTxt = await numAdultsProp.jsonValue();
-        dataHotel.adults = JSON.stringify(numAdultsTxt)
+        const adults = JSON.stringify(numAdultsTxt)
 
         console.log({numAdultsTxt});
 
         const [numChildren] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[4]/span[4]/span[1]');
         const numChildrenProp = await numChildren.getProperty('textContent');
         const numChildrenTxt = await numChildrenProp.jsonValue();
-        dataHotel.children = JSON.stringify(numChildrenTxt)
+        const children = JSON.stringify(numChildrenTxt)
 
         console.log({numChildrenTxt});
+
+        await page.waitForSelector('.filters-date');
+        let date = "Sat 8 Jan 2022"
+        function dateConverter(date){
+            let d = new Date(date)
+            let year = d.getFullYear();
+            let monthConverter = d.getMonth(); 
+            let month = monthConverter + 1;
+            let day = d.getDate();
+
+            let fullDate = [year, month, day]
+            
+            return fullDate.join('-')
+        }
+
+        console.log(dateConverter(date));
+
+
+        /* let totalAdults = "2"
+        let totalChildren = "1"
+        function totalGuests (totalAdults, totalChildren) {
+            return parseInt(totalAdults) + parseInt(totalChildren)
+        }
+
+        console.log(totalGuests(totalAdults)); */
+
+        /* function suma(numAdult, numChildren){
+            let numAdult = numAdult;
+            let numChildren = numChildren;
+
+            return parseInt(numAdults) + parseInt(numChildren);
+        }
+
+        document.write( suma(1,2)); */
+
+
+        
 
         const siteLanguage = await page.evaluate(()=>{
         const language = document.querySelector('html').lang
@@ -81,18 +111,12 @@ const data = async (url) => {
 
         console.log(siteLanguage);
 
-        await page.waitForSelector("guests.selectedAdultCount())", "guests.selectedChildCount())")
-        function guestsSum() {
-            const totalGuests = [];
-            guestsSum.forEach(guest => {
-                return totalGuests.push(guest.innerText);
-            });
-            return guestsSum();
-        }
 
-        console.log (guestsSum)
-        
-
+       /* const arrPrices = [];
+       const prices = document.querySelectorAll('.room-rates-item-price-moy');
+       prices.forEach(element = arrPrices.push(element.textContent));
+       console.log(arrPrices); */
+       
        
         await page.waitForSelector('.room-rates-item-price-moy');
         const rates = await page.evaluate(() => {
@@ -106,22 +130,6 @@ const data = async (url) => {
 
     console.log(rates);
 
-    await page.waitForSelector(".filters-date")
-
-    replaceDateFormat(date) ;{
-        let time = new Date (".filters-date");
-        let year = time.getFullYear();
-        let month = time.getMonth() + 1;
-        let day = time.getDate().slice(-2);
-
-        let fullDate = [year, month, day]
-        
-        return fullDate.join('-')
-    };
-
-    
-
-
     function lowestRateOffered() {
         const lowestRate = [];
         rates.forEach(rate => {
@@ -131,7 +139,6 @@ const data = async (url) => {
         const minRate = stringToInt.sort(function(a, b) { return a - b; });
         return minRate[0];
     };
-
     const lowestPrice = lowestRateOffered();
 
     console.log(lowestPrice);
@@ -169,7 +176,4 @@ const data = async (url) => {
       });
 
       console.log(currencyCode)
-
-
-};
-
+})();

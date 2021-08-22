@@ -2,7 +2,8 @@
   "name": "scrapinghotel",
   "version": "1.0.0",
   "description": "",
-  "main": "hotel.js",
+  "main": "index.js",
+
   "scripts": {
     "test": "jest"
   },
