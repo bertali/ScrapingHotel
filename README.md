@@ -19,14 +19,16 @@ With the method "scraping" and puppeteer we can grab information from a website 
 
 ## Start the project
 
-The functions to grab the information from the hotel website and the functions to analyze the data ara in the document hotel.js, inside the scripts folder. To make the project start working write "node index"
+The functions to grab the information from the hotel website and the functions to analyze the data ara in the document hotel.js, inside the scripts folder. 
+The function to open the browser and a new page to navigate through the url website is in the document index.js which require the scripts.
+Thus, to make the project start working write "node index" inside the terminal. 
+
 
 ## Results
 
 All the resulting data selected will appear insde a json document named hotel.json.
 
 <img width="453" alt="Captura de pantalla 2021-08-24 a las 10 21 04" src="https://user-images.githubusercontent.com/82206421/130582803-e0ed5f2e-2136-4133-841c-f98f64737710.png">
-
 
 
 ## Tests
