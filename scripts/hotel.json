@@ -1,8 +1,10 @@
 {
-  "checkIn": "Wed 5 Jan 2022",
-  "checkOut": "Sat 8 Jan 2022",
-  "adults": "\"2\"",
-  "children": "\"1\"",
-  "siteLanguage": "en",
-  "lowestPrice": 88.33
+  "checkInDate": "2022-01-05",
+  "checkOutDate": "2022-01-08",
+  "minPrice": "EUR 88.33",
+  "symbol": "EUR",
+  "numAdults": 2,
+  "numChildren": 1,
+  "totalGuests": 3,
+  "siteLanguage": "en"
 }

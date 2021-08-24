@@ -1,9 +1,12 @@
 const path = require('path');
 const fs = require('fs');
+const utils = require('./utils');
+
+
 
 module.exports = async(page, website) => {
     const { selectors } = website;
-
+    
     await page.goto(website.url);
     await page.waitForSelector(selectors.checkIn);
     await page.click(selectors.checkIn);
@@ -30,64 +33,39 @@ module.exports = async(page, website) => {
     await page.waitForSelector("input.check-out-datepicker")
     await page.waitForTimeout(2000)
         
-        const [checkinDate] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[2]');
-        const checkinDateProp = await checkinDate.getProperty('textContent');
+        const [checkinDateSelector] = await page.$x('/html/body/div[3]/div/div[2]/div[1]/header/div[1]/p/span[2]');
+        const checkinDateProp = await checkinDateSelector.getProperty('textContent');
         const checkinDateTxt = await checkinDateProp.jsonValue();
-        const checkIn = JSON.stringify(checkinDateTxt).replace(/\"/g, '');
 
-        console.log({checkIn}); 
+        const checkInDate = utils.convertDate (checkinDateTxt, 'YYYY-MM-DD');
+
+        console.log({checkInDate}); 
 
 
-        const [checkoutDate] = await page.$x('//*[@id="applicationHost"]/div/div[2]/div[1]/header/div[1]/p/span[3]');
-        const checkoutDateProp = await checkoutDate.getProperty('textContent');
+        const [checkoutDateSelector] = await page.$x('//*[@id="applicationHost"]/div/div[2]/div[1]/header/div[1]/p/span[3]');
+        const checkoutDateProp = await checkoutDateSelector.getProperty('textContent');
         const checkoutDateTxt = await checkoutDateProp.jsonValue();
-        const checkOut = JSON.stringify(checkoutDateTxt).replace(/\"/g, '');
 
-        console.log({checkOut});
+        const checkOutDate = utils.convertDate (checkoutDateTxt, 'YYYY-MM-DD');
 
-        await page.waitForSelector('.filters-date');
-        let date = checkoutDateTxt.format('DD-MM-YYYY')
-        /* let year = date.getFullyYear(); */
-        /* function newOrderDate(){
-            let year = date.getFullyYear();
-            let month = ("0" + (date.getFullyMonth() + 1)).slice(-2);
-            let day = ("0" + date.getDate()).slice(-2);
+        console.log({checkOutDate});
 
-            let fullDate = [year, month, day]
-            
-            return fullDate.join('-')
-            }  */ 
-
-        console.log(date); 
-
-        /* let year = d.getFullYear();
-        let monthConverter = d.getMonth(); 
-        let month = monthConverter + 1;
-        let day = d.getDate();  */
-
-
+    
         await page.waitForXPath(selectors.totalAdults);
-        const [numAdults] = await page.$x(selectors.totalAdults);
-        const numAdultsProp = await numAdults.getProperty('textContent');
+        const [totalAdults] = await page.$x(selectors.totalAdults);
+        const numAdultsProp = await totalAdults.getProperty('textContent');
         const numAdultsTxt = await numAdultsProp.jsonValue();
-        const adults = JSON.stringify(numAdultsTxt)
+        const numAdults = Number(numAdultsTxt);
 
-        console.log({numAdultsTxt});
 
         await page.waitForXPath(selectors.totalChildren);
-        const [numChildren] = await page.$x(selectors.totalChildren);
-        const numChildrenProp = await numChildren.getProperty('textContent');
+        const [totalChildren] = await page.$x(selectors.totalChildren);
+        const numChildrenProp = await totalChildren.getProperty('textContent');
         const numChildrenTxt = await numChildrenProp.jsonValue();
-        const children = JSON.stringify(numChildrenTxt)
+        const numChildren = Number(numChildrenTxt);
 
-        console.log({numChildrenTxt});
-
-       function sum () {
-           return parseInt(numAdultsTxt) + parseInt(numChildrenTxt); 
-       }
-            console.log(sum());
-         
-
+       
+        const totalGuests = utils.sum ([numAdults,numChildren]);
         
 
         const siteLanguage = await page.evaluate(()=>{
@@ -95,10 +73,8 @@ module.exports = async(page, website) => {
         return language
 
         });
+        
 
-        console.log(siteLanguage);
-
-       
         await page.waitForSelector(selectors.roomsPrices);
         const roomsPrices = await page.evaluate(() => {
             let arrRoomsPrices = [];
@@ -107,38 +83,52 @@ module.exports = async(page, website) => {
                 arrRoomsPrices.push(roomsPrices.innerText.replace('€', ' EUR'));
         });
             return arrRoomsPrices;
-    });
-
-    console.log(roomsPrices);
-
-
-    function lowestRateOffered() {
-        const lowestRate = [];
-        roomsPrices.forEach(roomsPrices => {
-            return lowestRate.push(roomsPrices.replace(/EUR/g, ''));
         });
-        let stringToInt = lowestRate.map(Number);
-        const minRate = stringToInt.sort(function(a, b) { return a - b; });
-        return minRate[0];
-    };
-    const lowestPrice = lowestRateOffered();
 
-    console.log(lowestPrice);
+        console.log(roomsPrices);
 
-    await page.waitForSelector(selectors.roomsPrices);
-    const currencyISO = await page.evaluate(() => {
-        const currencyISO = document.querySelector('.room-rates-item-price-moy');
-        const changeCode = currencyISO.innerText.replace(/\s*\u20ac\s*/ig, 'EUR');
-        return currencyISOCode = changeCode.replace(/[0-9]/g, '');
-    });
 
-    console.log(currencyISO)
+        function findBy(arr, key, comparatorFn) {
+            return arr.reduce(function(prev, curr, index, arr) { 
+              return comparatorFn.call(arr, prev[key], curr[key]) ? prev : curr; 
+            });
+          }
+          
+        function minComp(prev, curr) {
+            return prev < curr;
+          }
+
+
+        function getMinPrice() {
+            const price = [];
+            roomsPrices.forEach(roomPrice => {
+                let obj = {source: roomPrice, target: Number(roomPrice.replace(/EUR/g, ''))};
+                return price.push(obj);
+            });
+
+            return findBy(price, 'target', minComp).source.trim();
+        };
+        
+        const minPrice = getMinPrice();
+
+        console.log(minPrice);
+
+        function getSymbol (currency) {
+            return currency.replace(/\d+./g, '').trim();
+        };
+
+        const symbol = getSymbol (minPrice);
+
+        console.log(symbol);
+
 
 
       await page.exposeFunction('listInfoHotel', () => {
-          const bookingInfo = ({checkIn, checkOut, adults, children, siteLanguage, lowestPrice});
+          console.log("holi");
+          const bookingInfo = ({checkInDate, checkOutDate, minPrice, symbol, numAdults, numChildren, totalGuests, siteLanguage });
           return bookingInfo;
       });
+
 
       const bookingInfo = await page.evaluate(() => {
           return listInfoHotel();
@@ -147,4 +137,6 @@ module.exports = async(page, website) => {
       fs.writeFileSync(
           path.join(__dirname,`${website.scriptName}.json`), JSON.stringify(bookingInfo),'utf8'
       );
+
+      
 };

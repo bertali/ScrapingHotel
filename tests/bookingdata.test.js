@@ -1,16 +1,16 @@
-it('should load', async () => {
-    page.goto("https://www.secure-hotel-booking.com/smart/Star-Champs-Elysees/2YXB/en/")
+const utils = require('../scripts/utils');
 
-    const title = await page.title();
+it('should sum', async () => {
+    
+    const resSum =  utils.sum ([2,1]);
 
-    expect(title).toBe("Hotel");
+    expect(resSum).toBe(3);
 });
 
 
-it('should load', async () => {
-    page.goto("https://www.secure-hotel-booking.com/smart/Star-Champs-Elysees/2YXB/en/")
-
-    const totalAdults = await page.$$eval("#applicationHost > div > div.page-background > div.page-main.page-host > header > div.filters-wrapper.mtn.mbs > p > span.filters-occupancy > span:nth-child(1)");
+it('should convert date', async () => {
     
-    expect(totalAdults).toBe("2");
+    const resConvertDate =  utils.convertDate ('08 Jan 2022', 'YYYY-MM-DD');
+
+    expect(resConvertDate).toBe('2022-1-8');
 });
