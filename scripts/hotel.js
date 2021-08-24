@@ -39,8 +39,6 @@ module.exports = async(page, website) => {
 
         const checkInDate = utils.convertDate (checkinDateTxt, 'YYYY-MM-DD');
 
-        console.log({checkInDate}); 
-
 
         const [checkoutDateSelector] = await page.$x('//*[@id="applicationHost"]/div/div[2]/div[1]/header/div[1]/p/span[3]');
         const checkoutDateProp = await checkoutDateSelector.getProperty('textContent');
@@ -48,33 +46,7 @@ module.exports = async(page, website) => {
 
         const checkOutDate = utils.convertDate (checkoutDateTxt, 'YYYY-MM-DD');
 
-        console.log({checkOutDate});
-
     
-        await page.waitForXPath(selectors.totalAdults);
-        const [totalAdults] = await page.$x(selectors.totalAdults);
-        const numAdultsProp = await totalAdults.getProperty('textContent');
-        const numAdultsTxt = await numAdultsProp.jsonValue();
-        const numAdults = Number(numAdultsTxt);
-
-
-        await page.waitForXPath(selectors.totalChildren);
-        const [totalChildren] = await page.$x(selectors.totalChildren);
-        const numChildrenProp = await totalChildren.getProperty('textContent');
-        const numChildrenTxt = await numChildrenProp.jsonValue();
-        const numChildren = Number(numChildrenTxt);
-
-       
-        const totalGuests = utils.sum ([numAdults,numChildren]);
-        
-
-        const siteLanguage = await page.evaluate(()=>{
-        const language = document.querySelector('html').lang;
-        return language
-
-        });
-        
-
         await page.waitForSelector(selectors.roomsPrices);
         const roomsPrices = await page.evaluate(() => {
             let arrRoomsPrices = [];
@@ -84,8 +56,6 @@ module.exports = async(page, website) => {
         });
             return arrRoomsPrices;
         });
-
-        console.log(roomsPrices);
 
 
         function findBy(arr, key, comparatorFn) {
@@ -111,7 +81,6 @@ module.exports = async(page, website) => {
         
         const minPrice = getMinPrice();
 
-        console.log(minPrice);
 
         function getSymbol (currency) {
             return currency.replace(/\d+./g, '').trim();
@@ -119,12 +88,32 @@ module.exports = async(page, website) => {
 
         const symbol = getSymbol (minPrice);
 
-        console.log(symbol);
+
+        await page.waitForXPath(selectors.totalAdults);
+        const [totalAdults] = await page.$x(selectors.totalAdults);
+        const numAdultsProp = await totalAdults.getProperty('textContent');
+        const numAdultsTxt = await numAdultsProp.jsonValue();
+        const numAdults = Number(numAdultsTxt);
 
 
+        await page.waitForXPath(selectors.totalChildren);
+        const [totalChildren] = await page.$x(selectors.totalChildren);
+        const numChildrenProp = await totalChildren.getProperty('textContent');
+        const numChildrenTxt = await numChildrenProp.jsonValue();
+        const numChildren = Number(numChildrenTxt);
+
+       
+        const totalGuests = utils.sum ([numAdults,numChildren]);
+        
+
+        const siteLanguage = await page.evaluate(()=>{
+        const language = document.querySelector('html').lang;
+        return language
+
+        });
+        
 
       await page.exposeFunction('listInfoHotel', () => {
-          console.log("holi");
           const bookingInfo = ({checkInDate, checkOutDate, minPrice, symbol, numAdults, numChildren, totalGuests, siteLanguage });
           return bookingInfo;
       });

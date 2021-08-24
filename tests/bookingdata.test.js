@@ -12,5 +12,5 @@ it('should convert date', async () => {
     
     const resConvertDate =  utils.convertDate ('08 Jan 2022', 'YYYY-MM-DD');
 
-    expect(resConvertDate).toBe('2022-1-8');
+    expect(resConvertDate).toBe('2022-01-08');
 });
